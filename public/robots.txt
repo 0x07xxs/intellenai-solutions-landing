@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://intellenaisolutions.com/sitemap.xml
+
+# Optimize crawling
+Crawl-delay: 1 
