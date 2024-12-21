@@ -10,24 +10,13 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true,
+  swcMinify: false,
   compiler: {
     styledComponents: true,
-    removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
-    optimizeCss: true,
-    legacyBrowsers: false,
-    modern: true,
-    optimizePackageImports: [
-      '@radix-ui/react-icons',
-      'lucide-react',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-slot',
-    ],
-  },
-  generateBuildId: async () => {
-    return process.env.BUILD_ID || 'development'
+    optimizeCss: false,
+    legacyBrowsers: true,
   },
 };
 

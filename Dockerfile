@@ -15,9 +15,9 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies with detailed logging
 COPY package.json package-lock.json* ./
-RUN npm install --legacy-peer-deps --verbose
+RUN npm install --no-optional --legacy-peer-deps --verbose
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -45,9 +45,15 @@ ENV NEXT_PUBLIC_API_URL=https://intellenaisolutions.com
 RUN echo "Node version:" && node -v
 RUN echo "NPM version:" && npm -v
 RUN echo "Directory contents:" && ls -la
+RUN echo "Package.json contents:" && cat package.json
 
-# Build application
-RUN npm run build || (echo "Build failed" && ls -la /app && exit 1)
+# Build application with detailed error output
+RUN npm run build --verbose || (echo "Build failed with error:" && \
+    echo "Node modules contents:" && ls -la node_modules && \
+    echo "Current directory contents:" && ls -la && \
+    echo "Next config:" && cat next.config.js && \
+    echo "Build logs:" && cat /app/.next/error.log || true && \
+    exit 1)
 
 # Production image, copy all the files and run next
 FROM base AS runner
