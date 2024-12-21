@@ -60,6 +60,10 @@ ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
 ENV npm_config_target_libc=glibc
 
+# Create and set permissions for .next/cache directory
+RUN mkdir -p /app/.next/cache && \
+    chmod -R 777 /app/.next
+
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 
@@ -75,13 +79,15 @@ ENV NEXT_PUBLIC_APP_NAME="Intellenai Solutions"
 # Debug: Print environment variables and system info
 RUN echo "Environment variables:" && printenv && \
     echo "System architecture:" && uname -a && \
-    echo "Directory contents:" && ls -la
+    echo "Directory contents:" && ls -la && \
+    echo "Next.js cache directory:" && ls -la .next/cache
 
 # Build the application with detailed output
 RUN npm run build || (echo "Build failed with error:" && \
     echo "Environment:" && printenv && \
     echo "Directory contents:" && ls -la && \
     echo "Node modules contents:" && ls -la node_modules && \
+    echo "Next.js cache:" && ls -la .next/cache && \
     echo "Build logs:" && find .next/cache -type f -name "*.log" -exec cat {} \; && \
     exit 1)
 
@@ -120,9 +126,10 @@ RUN apk add --no-cache \
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Set directory permissions
+# Create and set permissions for .next directory structure
 RUN mkdir -p /app/.next/cache && \
-    chown -R nextjs:nodejs /app
+    chown -R nextjs:nodejs /app && \
+    chmod -R 755 /app
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
@@ -130,6 +137,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/cache ./.next/cache
 
 # Switch to non-root user for security
 USER nextjs

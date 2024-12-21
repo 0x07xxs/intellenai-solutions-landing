@@ -10,13 +10,21 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: false,
+  swcMinify: true,
   compiler: {
     styledComponents: true,
   },
   experimental: {
-    optimizeCss: false,
-    legacyBrowsers: true,
+    optimizeCss: true,
+    legacyBrowsers: false,
+    enableUndici: true,
+  },
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
+  onDemandEntries: {
+    maxInactiveAge: 60 * 60 * 1000,
+    pagesBufferLength: 2,
   },
 };
 
