@@ -1,12 +1,60 @@
-Dockerfile
-.dockerignore
-node_modules
-npm-debug.log
-README.md
-.next
+# Git
 .git
-.env*
-.husky
-.vscode
+.gitignore
+.github
+.gitattributes
+
+# Docker
+Dockerfile
+.docker
+.dockerignore
+
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Testing
 coverage
-.bolt 
+.nyc_output
+*.lcov
+
+# Next.js
+.next
+out
+
+# Production
+build
+dist
+
+# Debug & IDE
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+*.pem
+.env.example
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Misc
+*.log
+.bolt
+.vercel
+.turbo
+.cache
+tsconfig.tsbuildinfo
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md 
