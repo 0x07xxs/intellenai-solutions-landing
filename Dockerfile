@@ -27,7 +27,7 @@ ENV npm_config_target_libc=musl
 ENV NEXT_SHARP_PATH="/app/node_modules/sharp"
 
 # Install dependencies with verbose logging
-RUN npm install --no-optional --legacy-peer-deps --verbose
+RUN npm install --no-optional --legacy-peer-deps encoding --verbose
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
@@ -76,10 +76,12 @@ RUN cd node_modules/@next && \
     npm install @next/swc-linux-x64-musl --no-save
 
 # Build the application with detailed error output
+ARG OPENAI_API_KEY
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
 RUN NEXT_TELEMETRY_DISABLED=1 \
     npm run build 2>&1 | tee build.log || (echo "Build failed with error:" && \
     echo "Build log:" && cat build.log && \
-    echo "Environment:" && printenv && \
+    echo "Environment:" && printenv | grep -v OPENAI_API_KEY && \
     echo "Directory contents:" && ls -la && \
     echo "Node modules contents:" && ls -la node_modules && \
     echo "Next.js cache:" && ls -la .next/cache && \
