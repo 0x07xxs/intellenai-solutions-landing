@@ -25,7 +25,6 @@ ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
 ENV npm_config_target_libc=glibc
 ENV NEXT_SHARP_PATH="/app/node_modules/sharp"
-ENV NEXT_SWC_PATH="/app/node_modules/@next/swc"
 
 # Install dependencies with verbose logging
 RUN npm install --no-optional --legacy-peer-deps --verbose
@@ -53,7 +52,6 @@ ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
 ENV npm_config_target_libc=glibc
 ENV NEXT_SHARP_PATH="/app/node_modules/sharp"
-ENV NEXT_SWC_PATH="/app/node_modules/@next/swc"
 
 # Create and set permissions for .next directory
 RUN mkdir -p /app/.next/cache && \
@@ -73,9 +71,9 @@ RUN echo "Node version:" && node -v && \
     echo "Directory structure:" && ls -la && \
     echo "Next.js directory:" && ls -la .next || true
 
-# Ensure SWC binaries are present
-RUN mkdir -p node_modules/@next/swc-linux-x64-gnu && \
-    mkdir -p node_modules/@next/swc-linux-x64-musl
+# Install SWC binaries explicitly
+RUN cd node_modules/@next && \
+    npm install @next/swc-linux-x64-gnu @next/swc-linux-x64-musl --no-save
 
 # Build the application with detailed error output
 RUN NEXT_TELEMETRY_DISABLED=1 \

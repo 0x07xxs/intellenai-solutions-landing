@@ -16,10 +16,6 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: true,
-    legacyBrowsers: false,
-  },
-  generateBuildId: async () => {
-    return 'build-' + Date.now();
   },
 };
 
