@@ -14,8 +14,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies including encoding
-RUN npm install encoding
+# Install dependencies including encoding and critters
+RUN npm install encoding critters
 RUN npm install --legacy-peer-deps
 
 # Copy application code
@@ -31,8 +31,12 @@ ENV HOSTNAME="0.0.0.0"
 ARG OPENAI_API_KEY
 ENV OPENAI_API_KEY=$OPENAI_API_KEY
 
+# Create .next directory and set permissions
+RUN mkdir -p .next/cache && \
+    chmod -R 777 .next
+
 # Build the application
-RUN npm run build
+RUN NEXT_TELEMETRY_DISABLED=1 npm run build
 
 # Expose port
 EXPOSE 3000
