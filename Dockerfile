@@ -33,11 +33,10 @@ ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
 ENV npm_config_target_libc=glibc
 
-# Install dependencies
+# Install dependencies with verbose logging
 RUN npm install --no-optional --legacy-peer-deps --verbose
 
 # Stage 2: Builder
-# Fresh base image for building
 FROM node:18-alpine AS builder
 
 # Set working directory
@@ -59,6 +58,7 @@ ENV npm_config_build_from_source=true
 ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
 ENV npm_config_target_libc=glibc
+ENV NEXT_SHARP_PATH="/app/node_modules/sharp"
 
 # Create and set permissions for .next/cache directory
 RUN mkdir -p /app/.next/cache && \
@@ -70,29 +70,24 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all source files
 COPY . .
 
-# Add any required NEXT_PUBLIC_* environment variables for build
-ENV NEXT_PUBLIC_API_URL=https://intellenaisolutions.com
-ENV NEXT_PUBLIC_SITE_URL=https://intellenaisolutions.com
-ENV NEXT_PUBLIC_APP_ENV=production
-ENV NEXT_PUBLIC_APP_NAME="Intellenai Solutions"
+# Debug: Print environment and system info before build
+RUN echo "Node version:" && node -v && \
+    echo "NPM version:" && npm -v && \
+    echo "Python version:" && python3 --version && \
+    echo "Directory structure:" && ls -la && \
+    echo "Next.js directory:" && ls -la .next || true
 
-# Debug: Print environment variables and system info
-RUN echo "Environment variables:" && printenv && \
-    echo "System architecture:" && uname -a && \
-    echo "Directory contents:" && ls -la && \
-    echo "Next.js cache directory:" && ls -la .next/cache
-
-# Build the application with detailed output
-RUN npm run build || (echo "Build failed with error:" && \
+# Build the application with detailed error output
+RUN npm run build 2>&1 | tee build.log || (echo "Build failed with error:" && \
+    echo "Build log:" && cat build.log && \
     echo "Environment:" && printenv && \
     echo "Directory contents:" && ls -la && \
     echo "Node modules contents:" && ls -la node_modules && \
     echo "Next.js cache:" && ls -la .next/cache && \
-    echo "Build logs:" && find .next/cache -type f -name "*.log" -exec cat {} \; && \
+    echo "SWC binaries:" && find . -name "*swc*" -ls && \
     exit 1)
 
 # Stage 3: Runner
-# Production image
 FROM node:18-alpine AS runner
 
 # Set working directory
@@ -113,18 +108,14 @@ ENV NEXT_PUBLIC_APP_NAME="Intellenai Solutions"
 
 # Install production dependencies only
 RUN apk add --no-cache \
-    # Required for HTTPS
     ca-certificates \
-    # Required for proper timezone handling
     tzdata \
-    # Required for health checks
     curl \
-    # Required for SWC
     libc6-compat
 
 # Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
 # Create and set permissions for .next directory structure
 RUN mkdir -p /app/.next/cache && \
