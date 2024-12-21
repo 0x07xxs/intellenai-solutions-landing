@@ -23,7 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV npm_config_build_from_source=true
 ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
-ENV npm_config_target_libc=glibc
+ENV npm_config_target_libc=musl
 ENV NEXT_SHARP_PATH="/app/node_modules/sharp"
 
 # Install dependencies with verbose logging
@@ -50,7 +50,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV npm_config_build_from_source=true
 ENV npm_config_target_platform=linux
 ENV npm_config_target_arch=x64
-ENV npm_config_target_libc=glibc
+ENV npm_config_target_libc=musl
 ENV NEXT_SHARP_PATH="/app/node_modules/sharp"
 
 # Create and set permissions for .next directory
@@ -71,9 +71,9 @@ RUN echo "Node version:" && node -v && \
     echo "Directory structure:" && ls -la && \
     echo "Next.js directory:" && ls -la .next || true
 
-# Install SWC binaries explicitly
+# Install SWC binary explicitly for Alpine Linux (musl)
 RUN cd node_modules/@next && \
-    npm install @next/swc-linux-x64-gnu @next/swc-linux-x64-musl --no-save
+    npm install @next/swc-linux-x64-musl --no-save
 
 # Build the application with detailed error output
 RUN NEXT_TELEMETRY_DISABLED=1 \
