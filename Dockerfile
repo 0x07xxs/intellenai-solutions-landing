@@ -44,12 +44,24 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy all source files
 COPY . .
 
-# Set production environment
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+# Set build-time environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build the application
-RUN npm run build
+# Add any required NEXT_PUBLIC_* environment variables for build
+ENV NEXT_PUBLIC_API_URL=https://intellenaisolutions.com
+ENV NEXT_PUBLIC_SITE_URL=https://intellenaisolutions.com
+ENV NEXT_PUBLIC_APP_ENV=production
+ENV NEXT_PUBLIC_APP_NAME="Intellenai Solutions"
+
+# Debug: Print environment variables before build
+RUN echo "Environment variables:" && printenv
+
+# Build the application with detailed output
+RUN npm run build || (echo "Build failed with error:" && \
+    echo "Environment:" && printenv && \
+    echo "Directory contents:" && ls -la && \
+    exit 1)
 
 # Stage 3: Runner
 # Production image
@@ -58,9 +70,18 @@ FROM node:18-alpine AS runner
 # Set working directory
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+# Set runtime environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV TZ=UTC
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Add runtime public environment variables
+ENV NEXT_PUBLIC_API_URL=https://intellenaisolutions.com
+ENV NEXT_PUBLIC_SITE_URL=https://intellenaisolutions.com
+ENV NEXT_PUBLIC_APP_ENV=production
+ENV NEXT_PUBLIC_APP_NAME="Intellenai Solutions"
 
 # Install production dependencies only
 RUN apk add --no-cache \
@@ -92,10 +113,6 @@ USER nextjs
 # Expose the port the app runs on
 EXPOSE 3000
 
-# Set runtime environment variables
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-
 # Health check to ensure application is running
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000/ || exit 1
@@ -106,7 +123,7 @@ CMD ["node", "server.js"]
 
 # Deployment Process:
 # 1. Stage 1 (deps) installs all dependencies
-# 2. Stage 2 (builder) builds the application
+# 2. Stage 2 (builder) builds the application with environment variables
 # 3. Stage 3 (runner) sets up the production environment
 # 4. When deployed:
 #    - Container starts with non-root user
@@ -114,4 +131,4 @@ CMD ["node", "server.js"]
 #    - Health checks run every 30s
 #    - Server handles all static and dynamic routes
 #    - Production optimizations are enabled
-#    - Environment variables are set for production
+#    - Environment variables are set for both build and runtime
