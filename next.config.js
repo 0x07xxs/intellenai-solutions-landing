@@ -17,14 +17,9 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     legacyBrowsers: false,
-    enableUndici: true,
   },
   generateBuildId: async () => {
     return 'build-' + Date.now();
-  },
-  onDemandEntries: {
-    maxInactiveAge: 60 * 60 * 1000,
-    pagesBufferLength: 2,
   },
 };
 
