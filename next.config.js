@@ -5,13 +5,16 @@ const nextConfig = {
   },
   images: { 
     unoptimized: true,
-    domains: ['localhost']
+    domains: ['localhost', 'intellenaisolutions.com'],
   },
   output: 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true,
-  compress: true,
+  swcMinify: false,
+  experimental: {
+    optimizeCss: true,
+    legacyBrowsers: false,
+  },
 };
 
 module.exports = nextConfig;

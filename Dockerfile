@@ -2,16 +2,20 @@ FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat curl
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci --verbose
+RUN npm install --verbose
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache curl
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -20,9 +24,15 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 # Set production environment
 ENV NODE_ENV production
+ENV NEXT_PUBLIC_API_URL=https://intellenaisolutions.com
+
+# Debug information
+RUN node -v
+RUN npm -v
+RUN ls -la
 
 # Enable verbose output for build
-RUN npm run build --verbose || (echo "Build failed" && cat /app/.next/error.log && exit 1)
+RUN npm run build || (echo "Build failed" && ls -la /app && exit 1)
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -30,6 +40,8 @@ WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN apk add --no-cache curl
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
