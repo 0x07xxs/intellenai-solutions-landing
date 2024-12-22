@@ -1,0 +1,5 @@
+[33mcommit 081471a1d8a7c8ec25e08319a1124b1d5ee2ec8e[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Exif <lacednyquil@gmail.com>
+Date:   Fri Dec 20 19:20:40 2024 -0800
+
+    Fix build configuration and add detailed error logging

@@ -29,6 +29,11 @@ export const metadata: Metadata = {
     title: 'AI Automation Solutions | Transform Your Business',
     description: 'Custom AI solutions designed to drive efficiency, scalability, and innovation.',
     images: ['/og-image.jpg']
+  },
+  icons: {
+    icon: '/assets/favicon.ico',
+    shortcut: '/assets/favicon.ico',
+    apple: '/assets/favicon.ico',
   }
 };
 
@@ -42,7 +47,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#0a192f" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/assets/favicon.ico" />
       </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
