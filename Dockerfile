@@ -14,9 +14,9 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json* ./
 
-# Install dependencies including encoding and critters
-RUN npm install encoding critters
+# Install dependencies
 RUN npm install --legacy-peer-deps
+RUN npm install critters --save
 
 # Copy application code
 COPY . .
